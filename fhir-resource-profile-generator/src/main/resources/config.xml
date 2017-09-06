@@ -1,8 +1,8 @@
 <configuration>
     <bmmFiles>
-        <bmmFile name="/Users/cnanjo/repository/projects/archetypes/ballot_jan_2018/reference_model/CIMI_RM_CORE.v.0.0.4.bmm"/>
-        <bmmFile name="/Users/cnanjo/repository/projects/archetypes/ballot_jan_2018/reference_model/CIMI_RM_FOUNDATION.v.0.0.4.bmm"/>
-        <bmmFile name="/Users/cnanjo/repository/projects/archetypes/ballot_jan_2018/reference_model/CIMI_RM_CLINICAL.v.0.0.4.bmm"/>
+        <bmmFile name="/Users/cnanjo/repository/projects/opencimi/archetypes/ballot_jan_2018/reference_model/CIMI_RM_CORE.v.0.0.4.bmm"/>
+        <bmmFile name="/Users/cnanjo/repository/projects/opencimi/archetypes/ballot_jan_2018/reference_model/CIMI_RM_FOUNDATION.v.0.0.4.bmm"/>
+        <bmmFile name="/Users/cnanjo/repository/projects/opencimi/archetypes/ballot_jan_2018/reference_model/CIMI_RM_CLINICAL.v.0.0.4.bmm"/>
     </bmmFiles>
     <clinicalStatements>
         <clinicalStatement name="MedicationOrderStatement" topic="MedicationAct" context="MedicationOrder"/>

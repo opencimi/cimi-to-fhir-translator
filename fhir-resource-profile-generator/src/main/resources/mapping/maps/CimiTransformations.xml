@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<transformations>
+    <transformation name="MedicationOrderMap">
+        <source model="CIMI" class="MedicationOrderStatement" constraint="http://opencimi.org/logical-model/fhir/MedicationOrderStatement"/>
+        <target model="FHIR" class="MedicationRequest" constraint="http://hl7.org/fhir/StructureDefinition/MedicationRequest"/>
+        <ruleGroup>
+            <rule>
+                <source>
+                    <attribute name="identifier"/>
+                </source>
+                <target>
+                    <attribute name="identifier"/>
+                    <typeConversion type="fhir:copy"/>
+                </target>
+            </rule>
+            <!--<rule>-->
+                <!--<source>-->
+                    <!--<attribute name="additionalText"/>-->
+                <!--</source>-->
+                <!--<target>-->
+                    <!--<attribute name="note"/>-->
+                <!--</target>-->
+            <!--</rule>-->
+            <!--<rule>-->
+                <!--<source>-->
+                    <!--<attribute name="encounter"/>-->
+                <!--</source>-->
+                <!--<target>-->
+                    <!--<attribute name="context"/>-->
+                    <!--<typeConversion type="fhir:reference">-->
+                        <!--<arguments>-->
+                            <!--<argument name="referent">Encounter</argument>-->
+                            <!--<argument name="constraintIdentifier">http://opencimi.org/fhir/extension/encounter</argument>-->
+                        <!--</arguments>-->
+                    <!--</typeConversion>-->
+                <!--</target>-->
+            <!--</rule>-->
+            <!--<rule>-->
+                <!--<source>-->
+                    <!--<attribute name="context"/>-->
+                <!--</source>-->
+                <!--<target>-->
+                    <!--<attribute name="swecContext"/>-->
+                    <!--<typeConversion type="fhir:extension">-->
+                        <!--<arguments>-->
+                            <!--<argument name="extensionIdentifier">http://opencimi.org/fhir/extension/swecContext</argument>-->
+                        <!--</arguments>-->
+                    <!--</typeConversion>-->
+                <!--</target>-->
+            <!--</rule>-->
+        </ruleGroup>
+    </transformation>
+</transformations>

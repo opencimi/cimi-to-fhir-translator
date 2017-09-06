@@ -1,0 +1,847 @@
+map "http://fhir.hl7.org.au/fhir/StructureMap/ColorectalMap" = "Colorectal --> DiagnosticReport Mapping"
+
+uses "http://hl7.org/fhir/StructureDefinition/Colorectal" as source
+
+group Colorectal
+  input src : Colorectal as source;
+
+  Colorectal: for src make 
+      create("DiagnosticReport") as cdr, 
+      cdr.status = "final", 
+      cdr.code = cc("http://snomed.info/sct", "todo") then {
+    Colorectal.subject: for src.subject as v make cdr.subject = v
+    Colorectal.requester: for src.requester as v make 
+        create("DiagnosticRequest") as do, 
+        cdr.request = reference(do), 
+        do.subject = ("src.subject"), 
+        do.requester = v
+    Colorectal.performer: for src.performer as v make cdr.performer = v
+    Colorectal.preAnalytic: for src.preAnalytic as spa make 
+        create("Observation") as tpa, 
+        cdr.result = reference(tpa), 
+        tpa.subject = ("src.subject"), 
+        tpa.status = "final", 
+        tpa.code = cc("http://cap.org/protocols", "28592.1000043") then {
+      Colorectal.preAnalytic.clinicalInformation: for spa.clinicalInformation as v make 
+          create("DiagnosticRequest") as do, 
+          do.reason as dr, 
+          dr.text = v
+      Colorectal.preAnalytic.operatingSurgeonDetails: for spa.operatingSurgeonDetails as v make 
+          create("Specimen") as sp, 
+          cdr.specimen = reference(sp), 
+          sp.subject = ("src.subject"), 
+          sp.collection as tc, 
+          tc.collector = v
+      Colorectal.preAnalytic.perforation: for spa.perforation as v make 
+          create("Observation") as obs, 
+          tpa.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://cap.org/protocols", "28289.1000043"), 
+          obs.value = cc("http://fhir.hl7.org.au/fhir/rcpa/ValueSet/present-absent-ns", v)
+      Colorectal.preAnalytic.natureOfPerforation: for spa.natureOfPerforation as v make 
+          create("Observation") as obs, 
+          tpa.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://cap.org/protocols", "28296.1000043"), 
+          obs.value = cc("http://fhir.hl7.org.au/fhir/rcpa/ValueSet/perforation-type", v)
+      Colorectal.preAnalytic.clinicalObstruction: for spa.clinicalObstruction as v make 
+          create("Observation") as obs, 
+          tpa.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://cap.org/protocols", "28292.1000043"), 
+          obs.value = cc("http://fhir.hl7.org.au/fhir/rcpa/ValueSet/present-absent-ns", v)
+      Colorectal.preAnalytic.tumourLocation: for spa.tumourLocation as v make 
+          create("Observation") as obs, 
+          tpa.related as tpar, 
+          tpar.type = "has-member", 
+          tpar.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://loinc.org", "33725-3"), 
+          obs.value = cc("http://fhir.hl7.org.au/fhir/rcpa/ValueSet/crc-tumour-location", v)
+      Colorectal.preAnalytic.synchronousTumours: for spa.synchronousTumours as v make 
+          create("Observation") as obs, 
+          tpa.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://cap.org/protocols", "28346.1000043"), 
+          obs.value = v
+      Colorectal.preAnalytic.distanceAnalVerge: for spa.distanceAnalVerge as v make 
+          create("Observation") as obs, 
+          tpa.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://loinc.org", "33748-5"), 
+          obs.value = v
+      Colorectal.preAnalytic.typeOfOperation: for spa.typeOfOperation as sto make 
+          create("Observation") as obs, 
+          tpa.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://loinc.org", "29306-8"), 
+          obs.value = create("CodeableConcept") as tcc then {
+        Colorectal.preAnalytic.typeOfOperation.code: for sto.code as v make tcc.coding = c("http://snomed.info/sct", v)
+        Colorectal.preAnalytic.typeOfOperation.other: for sto.other as v make tcc.text = v
+      }
+      Colorectal.preAnalytic.anteriorResectionType: for spa.anteriorResectionType as v make 
+          create("Observation") as obs, 
+          tpa.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://cap.org/protocols", "28278.1000043"), 
+          obs.value = cc("http://fhir.hl7.org.au/fhir/rcpa/ValueSet/hi-lo-ultralo", v)
+      Colorectal.preAnalytic.preoperativeRadiotherapy: for spa.preoperativeRadiotherapy as v make 
+          create("Observation") as obs, 
+          tpa.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://loinc.org", "LN-RCPA-00063"), 
+          obs.value = cc("http://fhir.hl7.org.au/fhir/rcpa/ValueSet/yes-no-ns", v)
+      Colorectal.preAnalytic.typeOfCourse: for spa.typeOfCourse as v make 
+          create("Observation") as obs, 
+          tpa.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://cap.org/protocols", "28286.1000043"), 
+          obs.value = cc("http://fhir.hl7.org.au/fhir/rcpa/ValueSet/course-type", v)
+      Colorectal.preAnalytic.surgeonsOpinion: for spa.surgeonsOpinion as v make 
+          create("Observation") as obs, 
+          tpa.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://cap.org/protocols", "28295.1000043"), 
+          obs.value = v
+      Colorectal.preAnalytic.adjacentOrgans: for spa.adjacentOrgans as v make 
+          create("Observation") as obs, 
+          tpa.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://cap.org/protocols", "28336.1000043"), 
+          obs.value = v
+      Colorectal.preAnalytic.newPrimaryOrRecurrence: for spa.newPrimaryOrRecurrence as v make 
+          create("Observation") as obs, 
+          tpa.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://cap.org/protocols", "28337.1000043"), 
+          obs.value = cc("http://fhir.hl7.org.au/fhir/rcpa/ValueSet/cancer-primary-or-recurrence", v)
+      Colorectal.preAnalytic.RecurrenceDescription: for spa.RecurrenceDescription as v make 
+          create("Observation") as obs, 
+          tpa.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://something", "sort-this-1"), 
+          obs.value = v
+      Colorectal.preAnalytic.pathologyAccessionNumber: for spa.pathologyAccessionNumber as v make 
+          create("Observation") as obs, 
+          tpa.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://something", "sort-this-2"), 
+          obs.value = v
+      Colorectal.preAnalytic.otherRelevantDetails: for spa.otherRelevantDetails as v make 
+          create("Observation") as obs, 
+          tpa.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://cap.org/protocols", "28301.1000043"), 
+          obs.value = v
+    }
+    Colorectal.macro: for src.macro as sma make 
+        create("Observation") as tma, 
+        cdr.result = reference(tma), 
+        tma.subject = ("src.subject"), 
+        tma.status = "final", 
+        tma.code = cc("http://cap.org/protocols", "27906.1000043") then {
+      Colorectal.macro.specimenLength: for sma.specimenLength as v make 
+          create("Observation") as obs, 
+          tma.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://snomed.info/sct", "384606002"), 
+          obs.value = v
+      Colorectal.macro.tumourSite: for sma.tumourSite as v make 
+          create("Observation") as obs, 
+          tma.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://loinc.org", "33725-3"), 
+          obs.value = cc("http://fhir.hl7.org.au/fhir/rcpa/ValueSet/crc-tumour-location", v)
+      Colorectal.macro.maxTumourDiameter: for sma.maxTumourDiameter as v make 
+          create("Observation") as obs, 
+          tma.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://loinc.org", "21889-1"), 
+          obs.value = v
+      Colorectal.macro.distanceNearerProxOrDistal: for sma.distanceNearerProxOrDistal as v make 
+          create("Observation") as obs, 
+          tma.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://loinc.org", "81175-2"), 
+          obs.value = v
+      Colorectal.macro.distNonperitonCircumMargin: for sma.distNonperitonCircumMargin as v make 
+          create("Observation") as obs, 
+          tma.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://cap.org/protocols", "28358.1000043"), 
+          obs.value = v
+      Colorectal.macro.tumourPerforation: for sma.tumourPerforation as v make 
+          create("Observation") as obs, 
+          tma.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://cap.org/protocols", "27963.1000043"), 
+          obs.value = cc("http://fhir.hl7.org.au/fhir/rcpa/ValueSet/present-absent", v)
+      Colorectal.macro.relToAntPeritonealReflection: for sma.relToAntPeritonealReflection as v make 
+          create("Observation") as obs, 
+          tma.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://cap.org/protocols", "28362.1000043"), 
+          obs.value = cc("http://fhir.hl7.org.au/fhir/rcpa/ValueSet/crc-rel-anterior-peritoneal-reflection", v)
+      Colorectal.macro.intactnessOfMesorectum: for sma.intactnessOfMesorectum as v make 
+          create("Observation") as obs, 
+          tma.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://loinc.org", "33730-3"), 
+          obs.value = cc("http://fhir.hl7.org.au/fhir/rcpa/ValueSet/crc-intactness-of-mesorectum", v)
+      Colorectal.macro.peritoneum: for sma.peritoneum as v make 
+          create("Observation") as obs, 
+          tma.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://cap.org/protocols", "28369.1000043"), 
+          obs.value = cc("http://fhir.hl7.org.au/fhir/rcpa/ValueSet/crc-peritoneum-invasion", v)
+      Colorectal.macro.lymphNodes: for sma.lymphNodes as v make 
+          create("Observation") as obs, 
+          tma.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://snomed.info/sct", "364108009"), 
+          obs.value = cc("http://fhir.hl7.org.au/fhir/rcpa/ValueSet/received-notreceived", v)
+      Colorectal.macro.noLymphNodesPerCassette: for sma.noLymphNodesPerCassette as v make 
+          create("Observation") as obs, 
+          tma.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://snomed.info/sct", "444025001"), 
+          obs.value = v
+      Colorectal.macro.polyps: for sma.polyps as v make 
+          create("Observation") as obs, 
+          tma.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://cap.org/protocols", "28376.1000043"), 
+          obs.value = cc("http://fhir.hl7.org.au/fhir/rcpa/ValueSet/present-absent-na", v)
+      Colorectal.macro.polypSummary: for sma.polypSummary as v make 
+          create("Observation") as obs, 
+          tma.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://cap.org/protocols", "28379.1000043"), 
+          obs.value = v
+      Colorectal.macro.otherMacroComments: for sma.otherMacroComments as v make 
+          create("Observation") as obs, 
+          tma.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://loinc.org", "22634-0"), 
+          obs.value = v
+      Colorectal.macro.natureAndSiteOfBlocks: for sma.natureAndSiteOfBlocks as v make 
+          create("Observation") as obs, 
+          tma.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://loinc.org", "81178-6"), 
+          obs.value = v
+    }
+    Colorectal.micro: for src.micro as smi make 
+        create("Observation") as tmi, 
+        cdr.result = reference(tmi), 
+        tmi.subject = ("src.subject"), 
+        tmi.status = "final", 
+        tmi.code = cc("http://cap.org/protocols", "27973.1000043") then {
+      Colorectal.micro.tumourType: for smi.tumourType as v make 
+          create("Observation") as obs, 
+          obs.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://snomed.info/sct", "371441004"), 
+          obs.value = cc("http://fhir.hl7.org.au/fhir/rcpa/ValueSet/crc-tumour-type", v)
+      Colorectal.micro.histologicalGrade: for smi.histologicalGrade as v make 
+          create("Observation") as obs, 
+          obs.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://loinc.org", "33732-9"), 
+          obs.value = cc("http://fhir.hl7.org.au/fhir/rcpa/ValueSet/histological-grade", v)
+      Colorectal.micro.maxDegreeLocalInvasion: for smi.maxDegreeLocalInvasion as v make 
+          create("Observation") as obs, 
+          obs.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://cap.org/protocols", "28534.1000043"), 
+          obs.value = cc("http://fhir.hl7.org.au/fhir/rcpa/ValueSet/crc-deg-inv-bowel-wall", v)
+      Colorectal.micro.proximalOrDistalResectionMargins: for smi.proximalOrDistalResectionMargins as v make 
+          create("Observation") as obs, 
+          obs.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://cap.org/protocols", "28348.1000043"), 
+          obs.value = cc("http://fhir.hl7.org.au/fhir/rcpa/ValueSet/involved-notinvolved", v)
+      Colorectal.micro.involvedMargins: for smi.involvedMargins as v make 
+          create("Observation") as obs, 
+          obs.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://loinc.org", "44699-7"), 
+          obs.value = cc("http://fhir.hl7.org.au/fhir/rcpa/ValueSet/distal-proximal", v)
+      Colorectal.micro.marginsMicroClearance: for smi.marginsMicroClearance as v make 
+          create("Observation") as obs, 
+          obs.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://cap.org/protocols", "28396.1000043"), 
+          obs.value = v
+      Colorectal.micro.nonperitonealisedCircumMargin: for smi.nonperitonealisedCircumMargin as v make 
+          create("Observation") as obs, 
+          obs.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://cap.org/protocols", "28354.1000043"), 
+          obs.value = cc("http://fhir.hl7.org.au/fhir/rcpa/ValueSet/involved-notinvolved", v)
+      Colorectal.micro.microClearanceRectum: for smi.microClearanceRectum as v make 
+          create("Observation") as obs, 
+          obs.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://cap.org/protocols", "28400.1000043"), 
+          obs.value = v
+      Colorectal.micro.lymphNodeInvolvement: for smi.lymphNodeInvolvement as v make 
+          create("Observation") as obs, 
+          obs.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://loinc.org", "21892-5"), 
+          obs.value = cc("http://fhir.hl7.org.au/fhir/rcpa/ValueSet/present-absent-na", v)
+      Colorectal.micro.lymphNodesDetails: for smi.lymphNodesDetails as slnd make 
+          create("Observation") as tlnd, 
+          tmi.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(tlnd), 
+          tlnd.subject = ("src.subject"), 
+          tlnd.status = "final", 
+          tlnd.code = cc("http://cap.org/protocols", "28404.1000043") then {
+        Colorectal.micro.lymphNodesDetails.site: for slnd.site as v make 
+            create("Observation") as obs, 
+            obs.related as xtmp, 
+            xtmp.type = "has-member", 
+            xtmp.target = reference(obs), 
+            obs.subject = ("src.subject"), 
+            obs.status = "final", 
+            obs.code = cc("http://loinc.org", "39111-0"), 
+            obs.value = v
+        Colorectal.micro.lymphNodesDetails.numPos: for slnd.numPos as v make 
+            create("Observation") as obs, 
+            obs.related as xtmp, 
+            xtmp.type = "has-member", 
+            xtmp.target = reference(obs), 
+            obs.subject = ("src.subject"), 
+            obs.status = "final", 
+            obs.code = cc("http://loinc.org", "21893-3"), 
+            obs.value = v
+        Colorectal.micro.lymphNodesDetails.numExamined: for slnd.numExamined as v make 
+            create("Observation") as obs, 
+            obs.related as xtmp, 
+            xtmp.type = "has-member", 
+            xtmp.target = reference(obs), 
+            obs.subject = ("src.subject"), 
+            obs.status = "final", 
+            obs.code = cc("http://loinc.org", "21894-1"), 
+            obs.value = v
+      }
+      Colorectal.micro.extramuralTumourDeposits: for smi.extramuralTumourDeposits as v make 
+          create("Observation") as obs, 
+          obs.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://cap.org/protocols", "28392.1000043"), 
+          obs.value = cc("http://fhir.hl7.org.au/fhir/rcpa/ValueSet/present-absent-na", v)
+      Colorectal.micro.apicalNodeInvolvement: for smi.apicalNodeInvolvement as v make 
+          create("Observation") as obs, 
+          obs.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://cap.org/protocols", "28407.1000043"), 
+          obs.value = cc("http://fhir.hl7.org.au/fhir/rcpa/ValueSet/present-absent-na", v)
+      Colorectal.micro.venousSmallVesselInvasion: for smi.venousSmallVesselInvasion as v make 
+          create("Observation") as obs, 
+          obs.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://loinc.org", "33761-8"), 
+          obs.value = v
+      Colorectal.micro.intramuralVeinInvasion: for smi.intramuralVeinInvasion as v make 
+          create("Observation") as obs, 
+          obs.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://cap.org/protocols", "28412.1000043"), 
+          obs.value = cc("http://fhir.hl7.org.au/fhir/rcpa/ValueSet/intramural-vein-invasion", v)
+      Colorectal.micro.extramuralVeinInvasion: for smi.extramuralVeinInvasion as v make 
+          create("Observation") as obs, 
+          obs.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://cap.org/protocols", "28415.1000043"), 
+          obs.value = cc("http://fhir.hl7.org.au/fhir/rcpa/ValueSet/extramural-vein-invasion", v)
+      Colorectal.micro.smallVesselInvasion: for smi.smallVesselInvasion as v make 
+          create("Observation") as obs, 
+          obs.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://loinc.org", "33739-4"), 
+          obs.value = cc("http://fhir.hl7.org.au/fhir/rcpa/ValueSet/small-vessel-invasion", v)
+      Colorectal.micro.perineuralInvasion: for smi.perineuralInvasion as v make 
+          create("Observation") as obs, 
+          obs.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://loinc.org", "33741-0"), 
+          obs.value = cc("http://fhir.hl7.org.au/fhir/rcpa/ValueSet/perineural-invasion", v)
+      Colorectal.micro.histoConfDistMetastases: for smi.histoConfDistMetastases as v make 
+          create("Observation") as obs, 
+          obs.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://snomed.info/sct", "399608002"), 
+          obs.value = cc("http://fhir.hl7.org.au/fhir/rcpa/ValueSet/present-absent-ns", v)
+      Colorectal.micro.histoConfDistMetastasesSite: for smi.histoConfDistMetastasesSite as v make 
+          create("Observation") as obs, 
+          obs.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://loinc.org", "21920-4"), 
+          obs.value = v
+      Colorectal.micro.relCoexistPathabnorm: for smi.relCoexistPathabnorm as scc make 
+          create("Observation") as obs, 
+          obs.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://snomed.info/sct", "371498006"), 
+          obs.value = create("CodeableConcept") as tcc then {
+        Colorectal.micro.relCoexistPathabnorm.code: for scc.code as v make tcc.coding = c("http://snomed.info/sct", v)
+        Colorectal.micro.relCoexistPathabnorm.other: for scc.other as v make tcc.text = v
+      }
+      Colorectal.micro.polypDetails: for smi.polypDetails as v make 
+          create("Observation") as obs, 
+          obs.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://loinc.org", "33745-1"), 
+          obs.value = v
+      Colorectal.micro.dysplasia: for smi.dysplasia as v make 
+          create("Observation") as obs, 
+          obs.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://cap.org/protocols", "28426.1000043"), 
+          obs.value = cc("http://fhir.hl7.org.au/fhir/rcpa/ValueSet/dysplasia", v)
+      Colorectal.micro.otherAbnormality: for smi.otherAbnormality as v make 
+          create("Observation") as obs, 
+          obs.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://test.what/here", "something"), 
+          obs.value = v
+      Colorectal.micro.microResidualTumourStatus: for smi.microResidualTumourStatus as v make 
+          create("Observation") as obs, 
+          obs.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://cap.org/protocols", "28425.1000043"), 
+          obs.value = v
+      Colorectal.micro.neoadjuvantTherapy: for smi.neoadjuvantTherapy as v make 
+          create("Observation") as obs, 
+          obs.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://cap.org/protocols", "28123.1000043"), 
+          obs.value = cc("http://fhir.hl7.org.au/fhir/rcpa/ValueSet/response-to-neoadjuvant-therapy", v)
+      Colorectal.micro.microComments: for smi.microComments as v make 
+          create("Observation") as obs, 
+          obs.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://loinc.org", "22635-7"), 
+          obs.value = v
+    }
+    Colorectal.ancillaryTests: for src.ancillaryTests as sat make 
+        create("Observation") as tat, 
+        cdr.result = reference(tat), 
+        tat.subject = ("src.subject"), 
+        tat.status = "final", 
+        tat.code = cc("http://cap.org/protocols", "28156.1000043") then {
+      Colorectal.ancillaryTests.mlh1: for sat.mlh1 as v make 
+          create("Observation") as obs, 
+          tat.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://loinc.org", "50322-7"), 
+          obs.value = cc("http://fhir.hl7.org.au/fhir/rcpa/ValueSet/stain-type", v)
+      Colorectal.ancillaryTests.pms2: for sat.pms2 as v make 
+          create("Observation") as obs, 
+          tat.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://loinc.org", "50328-4"), 
+          obs.value = cc("http://fhir.hl7.org.au/fhir/rcpa/ValueSet/stain-type", v)
+      Colorectal.ancillaryTests.msh2: for sat.msh2 as v make 
+          create("Observation") as obs, 
+          tat.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://loinc.org", "50323-5"), 
+          obs.value = cc("http://fhir.hl7.org.au/fhir/rcpa/ValueSet/stain-type", v)
+      Colorectal.ancillaryTests.msh6: for sat.msh6 as v make 
+          create("Observation") as obs, 
+          tat.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://loinc.org", "50324-3"), 
+          obs.value = cc("http://fhir.hl7.org.au/fhir/rcpa/ValueSet/stain-type", v)
+      Colorectal.ancillaryTests.comments: for sat.comments as v make 
+          create("Observation") as obs, 
+          tat.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://cap.org/protocols", "28436.1000043"), 
+          obs.value = v
+      Colorectal.ancillaryTests.msi: for sat.msi as smsi make 
+          create("Observation") as tmsi, 
+          tat.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(tmsi), 
+          tmsi.subject = ("src.subject"), 
+          tmsi.status = "final", 
+          tmsi.code = cc("http://cap.org/protocols", "28399.1000043") then {
+        Colorectal.ancillaryTests.msi.code: for smsi.code as v make 
+            create("Observation") as obs, 
+            tmsi.related as xtmp, 
+            xtmp.type = "has-member", 
+            xtmp.target = reference(obs), 
+            obs.subject = ("src.subject"), 
+            obs.status = "final", 
+            obs.code = cc("http://loinc.org", "43368-0"), 
+            obs.value = cc("http://fhir.hl7.org.au/fhir/rcpa/ValueSet/msi-options", v)
+        Colorectal.ancillaryTests.msi.comments: for smsi.comments as v make 
+            create("Observation") as obs, 
+            tmsi.related as xtmp, 
+            xtmp.type = "has-member", 
+            xtmp.target = reference(obs), 
+            obs.subject = ("src.subject"), 
+            obs.status = "final", 
+            obs.code = cc("http://cap.org/protocols", "28453.1000043"), 
+            obs.value = v
+        Colorectal.ancillaryTests.msi.labDetails: for smsi.labDetails as v make 
+            create("Observation") as obs, 
+            tmsi.related as xtmp, 
+            xtmp.type = "has-member", 
+            xtmp.target = reference(obs), 
+            obs.subject = ("src.subject"), 
+            obs.status = "final", 
+            obs.code = cc("http://cap.org/protocols", "28447.1000043"), 
+            obs.value = v
+      }
+      Colorectal.ancillaryTests.braf: for sat.braf as sbraf make 
+          create("Observation") as tbraf, 
+          tat.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(tbraf), 
+          tbraf.subject = ("src.subject"), 
+          tbraf.status = "final", 
+          tbraf.code = cc("http://cap.org/protocols", "28454.1000043") then {
+        Colorectal.ancillaryTests.braf.code: for sbraf.code as v make 
+            create("Observation") as obs, 
+            tbraf.related as xtmp, 
+            xtmp.type = "has-member", 
+            xtmp.target = reference(obs), 
+            obs.subject = ("src.subject"), 
+            obs.status = "final", 
+            obs.code = cc("http://loinc.org", "58483-9"), 
+            obs.value = cc("http://fhir.hl7.org.au/fhir/rcpa/ValueSet/mutated-wildtype", v)
+        Colorectal.ancillaryTests.braf.comments: for sbraf.comments as v make 
+            create("Observation") as obs, 
+            tbraf.related as xtmp, 
+            xtmp.type = "has-member", 
+            xtmp.target = reference(obs), 
+            obs.subject = ("src.subject"), 
+            obs.status = "final", 
+            obs.code = cc("http://cap.org/protocols", "28460.1000043"), 
+            obs.value = v
+        Colorectal.ancillaryTests.braf.labDetails: for sbraf.labDetails as v make 
+            create("Observation") as obs, 
+            tbraf.related as xtmp, 
+            xtmp.type = "has-member", 
+            xtmp.target = reference(obs), 
+            obs.subject = ("src.subject"), 
+            obs.status = "final", 
+            obs.code = cc("http://cap.org/protocols", "28459.1000043"), 
+            obs.value = v
+      }
+      Colorectal.ancillaryTests.kras: for sat.kras as skras make 
+          create("Observation") as tkras, 
+          tat.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(tkras), 
+          tkras.subject = ("src.subject"), 
+          tkras.status = "final", 
+          tkras.code = cc("http://cap.org/protocols", "28461.1000043") then {
+        Colorectal.ancillaryTests.kras.code: for skras.code as v make 
+            create("Observation") as obs, 
+            tkras.related as xtmp, 
+            xtmp.type = "has-member", 
+            xtmp.target = reference(obs), 
+            obs.subject = ("src.subject"), 
+            obs.status = "final", 
+            obs.code = cc("http://loinc.org", "21703-4"), 
+            obs.value = cc("http://fhir.hl7.org.au/fhir/rcpa/ValueSet/mutated-wildtype", v)
+        Colorectal.ancillaryTests.kras.comments: for skras.comments as v make 
+            create("Observation") as obs, 
+            tkras.related as xtmp, 
+            xtmp.type = "has-member", 
+            xtmp.target = reference(obs), 
+            obs.subject = ("src.subject"), 
+            obs.status = "final", 
+            obs.code = cc("http://cap.org/protocols", "28465.1000043"), 
+            obs.value = v
+        Colorectal.ancillaryTests.kras.labDetails: for skras.labDetails as v make 
+            create("Observation") as obs, 
+            tkras.related as xtmp, 
+            xtmp.type = "has-member", 
+            xtmp.target = reference(obs), 
+            obs.subject = ("src.subject"), 
+            obs.status = "final", 
+            obs.code = cc("http://cap.org/protocols", "28466.1000043"), 
+            obs.value = v
+      }
+    }
+    Colorectal.synthesisOverview: for src.synthesisOverview as sso make 
+        create("Observation") as tto, 
+        cdr.result = reference(tto), 
+        tto.subject = ("src.subject"), 
+        tto.status = "final", 
+        tto.code = cc("http://cap.org/protocols", "28253.1000043") then {
+      Colorectal.synthesisOverview.tumourStageT: for sso.tumourStageT as v make 
+          create("Observation") as obs, 
+          tto.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://snomed.info/sct", "78873005"), 
+          obs.value = cc("http://fhir.hl7.org.au/fhir/rcpa/ValueSet/crc-tumour-stage-t", v)
+      Colorectal.synthesisOverview.tumourStageN: for sso.tumourStageN as v make 
+          create("Observation") as obs, 
+          tto.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://snomed.info/sct", "277206009"), 
+          obs.value = cc("http://fhir.hl7.org.au/fhir/rcpa/ValueSet/crc-tumour-stage-n", v)
+      Colorectal.synthesisOverview.tumourStageM: for sso.tumourStageM as v make 
+          create("Observation") as obs, 
+          tto.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://cap.org/protocols", "28552.1000043"), 
+          obs.value = cc("http://fhir.hl7.org.au/fhir/rcpa/ValueSet/crc-tumour-stage-m", v)
+      Colorectal.synthesisOverview.tumourStageGrouping: for sso.tumourStageGrouping as v make 
+          create("Observation") as obs, 
+          tto.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://loinc.org", "21902-2"), 
+          obs.value = cc("http://fhir.hl7.org.au/fhir/rcpa/ValueSet/crc-tumour-stage-grouping", v)
+      Colorectal.synthesisOverview.tumourStagingSystem: for sso.tumourStagingSystem as v make 
+          create("Observation") as obs, 
+          tto.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://snomed.info/sct", "443941007"), 
+          obs.value = v
+      Colorectal.synthesisOverview.diagnosticSummary: for sso.diagnosticSummary as v make 
+          create("Observation") as obs, 
+          tto.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://loinc.org", "22637-3"), 
+          obs.value = v
+      Colorectal.synthesisOverview.newPrimaryOrRecurrence: for sso.newPrimaryOrRecurrence as v make 
+          create("Observation") as obs, 
+          tto.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://cap.org/protocols", "28472.1000043"), 
+          obs.value = cc("http://fhir.hl7.org.au/fhir/rcpa/ValueSet/new-cancer-or-recurrence", v)
+      Colorectal.synthesisOverview.newDescription: for sso.newDescription as v make 
+          create("Observation") as obs, 
+          tto.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://cap.org/protocols", "28473.1000043"), 
+          obs.value = v
+      Colorectal.synthesisOverview.overarchingComment: for sso.overarchingComment as v make 
+          create("Observation") as obs, 
+          tto.related as xtmp, 
+          xtmp.type = "has-member", 
+          xtmp.target = reference(obs), 
+          obs.subject = ("src.subject"), 
+          obs.status = "final", 
+          obs.code = cc("http://loinc.org", "22638-1"), 
+          obs.value = v
+    }
+  }
+
+endgroup
+     

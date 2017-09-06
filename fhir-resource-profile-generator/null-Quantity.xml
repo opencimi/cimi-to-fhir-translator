@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <id value="null-Quantity"/>
+  <url value="http://hl7.org/fhir/StructureDefinition/cda-pq-Quantity"/>
+  <name value="Profile for Quantity for PQ2Quantity"/>
+  <experimental value="false"/>
+  <description value="Generated automatically from the mapping by the Java Reference Implementation"/>
+  <fhirVersion value="1.7.0"/>
+  <kind value="complex-type"/>
+  <abstract value="false"/>
+  <type value="Quantity"/>
+  <baseDefinition value="http://hl7.org/fhir/StructureDefinition/Quantity"/>
+  <derivation value="constraint"/>
+  <differential>
+    <element>
+      <path value="Quantity"/>
+    </element>
+    <element>
+      <path value="Quantity.value"/>
+    </element>
+    <element>
+      <path value="Quantity.unit"/>
+      <type>
+        <code value="code"/>
+      </type>
+    </element>
+    <element>
+      <path value="Quantity.code"/>
+    </element>
+    <element>
+      <path value="Quantity.system"/>
+      <fixedString value="http://unitsofmeasure.org"/>
+    </element>
+    <element>
+      <path value="Quantity.extension"/>
+      <binding>
+        <strength value="required"/>
+        <valueSetReference>
+          <reference value="http://hl7.org/fhir/ValueSet/v3-NullFlavor"/>
+        </valueSetReference>
+      </binding>
+    </element>
+  </differential>
+</StructureDefinition>

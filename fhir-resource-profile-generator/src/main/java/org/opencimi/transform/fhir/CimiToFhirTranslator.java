@@ -20,7 +20,10 @@
  */
 package org.opencimi.transform.fhir;
 
-import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.parser.IParser;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import org.hl7.fhir.r4.hapi.ctx.DefaultProfileValidationSupport;
 import org.hl7.fhir.r4.hapi.ctx.HapiWorkerContext;
 import org.hl7.fhir.r4.hapi.ctx.PrePopulatedValidationSupport;
@@ -37,17 +40,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.io.IOUtils;
 
 /**
- * Load all BMM modules (DONE see CIMI Helper)
- * Flatten specified clinical statements (DONE see CIMI Helper)
- * Generate and cache logical profiles (DONE)
- * Load transformation definitions (DONE)
- * Generate and cache maps
- * Run transformations
- * Persist resource profiles
+ * Load all BMM modules (DONE see CIMI Helper) Flatten specified clinical
+ * statements (DONE see CIMI Helper) Generate and cache logical profiles (DONE)
+ * Load transformation definitions (DONE) Generate and cache maps Run
+ * transformations Persist resource profiles
  */
-
 public class CimiToFhirTranslator {
 
     private CimiTransformHelper helper;
@@ -69,33 +69,44 @@ public class CimiToFhirTranslator {
         this.transformations = deserializer.loadFromClassPath("/mapping/maps/CimiTransformations.xml");//TODO pass through configuration file
     }
 
-    public void generateFhirResourceProfiles() {
+    public void generateFhirResourceProfiles() throws IOException {
+        IParser parser = helper.getFhirContext().newJsonParser();
+        parser.setPrettyPrint(true);
+
         StructureMapSerializer serializer = new StructureMapSerializer();
         PrePopulatedValidationSupport validationSupport = new PrePopulatedValidationSupport();
-        transformations.forEach( transform -> {
+        List<StructureDefinition> result = new ArrayList<>();
+        for (ModelTransform transform : transformations) {
             StructureMap map = StructureMapFactory.build(transform);
             resourceProfileMaps.put(map.getUrl(), map);
             System.out.println(serializer.render(map));
             logicalProfiles.forEach(logicalProfile -> {
                 validationSupport.addStructureDefinition(logicalProfile);
             });
-            FhirTransformationEngine transformationEngine = configureTransformationEngine(resourceProfileMaps, validationSupport);
+            FhirTransformationEngine transformationEngine = configureTransformationEngine(helper, resourceProfileMaps, validationSupport);
+            List<StructureDefinition> profiles;
             try {
-                List<StructureDefinition> result = transformationEngine.analyse(null, map).getProfiles();
-                System.out.println(result);
-            } catch(Exception e) {
-                e.printStackTrace();
+                profiles = transformationEngine.analyse(null, map).getProfiles();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
-        });
+            result.addAll(profiles);
+            for (StructureDefinition profile : profiles) {
+                String json = parser.encodeResourceToString(profile);
+                
+                FileWriter fw = new FileWriter(new File(helper.getConfig().getOutputDirectory(), profile.getName() + ".json"));
+                IOUtils.write(json, fw);
+                fw.close();
+            }
+        }
     }
 
-    public static FhirTransformationEngine configureTransformationEngine(Map<String, StructureMap> maps, PrePopulatedValidationSupport validationSupport) {
-        FhirContext context = FhirContext.forR4();
+    public static FhirTransformationEngine configureTransformationEngine(CimiTransformHelper helper, Map<String, StructureMap> maps, PrePopulatedValidationSupport validationSupport) {
         DefaultProfileValidationSupport validation = new DefaultProfileValidationSupport();
-        for (StructureDefinition sd : new DefaultProfileValidationSupport().fetchAllStructureDefinitions(context)) {
+        for (StructureDefinition sd : new DefaultProfileValidationSupport().fetchAllStructureDefinitions(helper.getFhirContext())) {
             validationSupport.addStructureDefinition(sd);
         }
-        HapiWorkerContext hapiContext = new HapiWorkerContext(context, validationSupport);
+        HapiWorkerContext hapiContext = new HapiWorkerContext(helper.getFhirContext(), validationSupport);
         return new FhirTransformationEngine(hapiContext, maps, null, null);
     }
 }

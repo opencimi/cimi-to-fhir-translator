@@ -20,6 +20,7 @@
  */
 package org.opencimi.transform.tools;
 
+import ca.uhn.fhir.context.FhirContext;
 import org.opencimi.transform.*;
 import org.opencimi.transform.serializer.TransformationSerializer;
 import org.openehr.bmm.core.BmmClass;
@@ -37,6 +38,7 @@ public class CimiTransformHelper {
     private String configurationFilePath;
     private Configuration config;
     private BmmModel bmmModel;
+    private FhirContext fhirContext = FhirContext.forR4();
 
     public CimiTransformHelper(String configurationFilePath) {
         this.configurationFilePath = configurationFilePath;
@@ -63,6 +65,10 @@ public class CimiTransformHelper {
         return bmmModel;
     }
 
+    public FhirContext getFhirContext(){
+        return this.fhirContext;
+    }
+    
     public BmmClass flattenClinicalStatement(String statementName, String statementTopicClassName, String statementContextClassName) {
         BmmClass clinicalStatement = bmmModel.getClassDefinition("ClinicalStatement");
         BmmClass clinicalStatementFlattened = clinicalStatement.flattenBmmClass();

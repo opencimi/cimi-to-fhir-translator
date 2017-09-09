@@ -13,28 +13,29 @@
                     <typeConversion type="fhir:copy"/>
                 </target>
             </rule>
-            <!--<rule>-->
-                <!--<source>-->
-                    <!--<attribute name="additionalText"/>-->
-                <!--</source>-->
-                <!--<target>-->
-                    <!--<attribute name="note"/>-->
-                <!--</target>-->
-            <!--</rule>-->
-            <!--<rule>-->
-                <!--<source>-->
-                    <!--<attribute name="encounter"/>-->
-                <!--</source>-->
-                <!--<target>-->
-                    <!--<attribute name="context"/>-->
-                    <!--<typeConversion type="fhir:reference">-->
-                        <!--<arguments>-->
-                            <!--<argument name="referent">Encounter</argument>-->
-                            <!--<argument name="constraintIdentifier">http://opencimi.org/fhir/extension/encounter</argument>-->
-                        <!--</arguments>-->
-                    <!--</typeConversion>-->
-                <!--</target>-->
-            <!--</rule>-->
+            <rule>
+                <source>
+                    <attribute name="additionalText"/>
+                </source>
+                <target>
+                    <attribute name="note"/>
+                    <typeConversion type="fhir:copy"/>
+                </target>
+            </rule>
+            <rule>
+                <source>
+                    <attribute name="encounter"/>
+                </source>
+                <target>
+                    <attribute name="context"/>
+                    <typeConversion type="fhir:reference">
+                        <arguments>
+                            <argument name="referent">Encounter</argument>
+                            <argument name="constraintIdentifier">http://opencimi.org/fhir/extension/encounter</argument>
+                        </arguments>
+                    </typeConversion>
+                </target>
+            </rule>
             <!--<rule>-->
                 <!--<source>-->
                     <!--<attribute name="context"/>-->

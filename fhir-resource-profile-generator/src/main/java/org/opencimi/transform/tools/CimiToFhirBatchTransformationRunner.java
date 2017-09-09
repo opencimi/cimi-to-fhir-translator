@@ -20,6 +20,7 @@
  */
 package org.opencimi.transform.tools;
 
+import java.io.IOException;
 import org.opencimi.transform.fhir.CimiToFhirTranslator;
 import org.opencimi.transform.translator.fhir.FhirLogicalProfileGenerator;
 
@@ -30,7 +31,7 @@ public class CimiToFhirBatchTransformationRunner {
      *
      * @param args
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         if (validArguments(args)) {
             String configFilePath = null;

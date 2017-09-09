@@ -33,32 +33,47 @@ public class StructureMapFactory {
         map.setName(transform.getName());
         map.setUrl(STRUCTURE_MAP_URI_BASE + map.getName().toLowerCase());
         map.addStructure().setUrl(transform.getSource().getContraintIdentifier())
-                .setAlias(transform.getSource().getClassName())
-                .setMode(StructureMap.StructureMapModelMode.SOURCE)
-                .setDocumentation("Source model");
+            .setAlias(transform.getSource().getClassName())
+            .setMode(StructureMap.StructureMapModelMode.SOURCE)
+            .setDocumentation("Source model");
         map.addStructure().setUrl(transform.getTarget().getContraintIdentifier())
-                .setAlias(transform.getTarget().getClassName())
-                .setMode(StructureMap.StructureMapModelMode.TARGET)
-                .setDocumentation("Target model");
-        transform.getRuleGroupList().forEach( ruleGroup -> {
-           StructureMap.StructureMapGroupComponent group = map.addGroup().setName("mainGroup");
-           group.addInput().setName("source").setType(transform.getSource().getClassName()).setMode(StructureMap.StructureMapInputMode.SOURCE);
-           group.addInput().setName("target").setType(transform.getTarget().getClassName()).setMode(StructureMap.StructureMapInputMode.TARGET);
-           group.setTypeMode(StructureMap.StructureMapGroupTypeMode.TYPEANDTYPES);
-           ruleGroup.getRules().forEach( rule -> {
-               StructureMap.StructureMapGroupRuleComponent transformRule = group.addRule();
-               transformRule.setName(rule.getSources().get(0).getAttributeList().get(0).getName() + "Rule");
-               StructureMap.StructureMapGroupRuleSourceComponent source = transformRule.addSource().setContext("source").setElement(rule.getSources().get(0).getAttributeList().get(0).getName()).setVariable("a");
-               StructureMap.StructureMapGroupRuleTargetComponent target = transformRule.addTarget().setContext("target").setElement(rule.getTargets().get(0).getAttributeList().get(0).getName()).setVariable("a");
-               if(rule.getTargets().get(0).getTypeConversion() != null) { //.setTransform(StructureMap.StructureMapTransform.EXTENSION);
-                   String type = rule.getTargets().get(0).getTypeConversion().getType();
-                   if(type.equals("copy")) {
-                       target.setTransform(StructureMap.StructureMapTransform.COPY);
-                       target.addParameter().setValue(new IdType("a"));
-                   }
-               }
+            .setAlias(transform.getTarget().getClassName())
+            .setMode(StructureMap.StructureMapModelMode.TARGET)
+            .setDocumentation("Target model");
+        transform.getRuleGroupList().forEach(ruleGroup -> {
+            StructureMap.StructureMapGroupComponent group = map.addGroup().setName("mainGroup");
+            group.addInput().setName("source").setType(transform.getSource().getClassName()).setMode(StructureMap.StructureMapInputMode.SOURCE);
+            group.addInput().setName("target").setType(transform.getTarget().getClassName()).setMode(StructureMap.StructureMapInputMode.TARGET);
+            group.setTypeMode(StructureMap.StructureMapGroupTypeMode.TYPEANDTYPES);
+            ruleGroup.getRules().forEach(rule -> {
+                StructureMap.StructureMapGroupRuleComponent transformRule = group.addRule();
+                transformRule.setName(rule.getSources().get(0).getAttributeList().get(0).getName() + "Rule");
+                StructureMap.StructureMapGroupRuleSourceComponent source = transformRule.addSource().setContext("source").setElement(rule.getSources().get(0).getAttributeList().get(0).getName()).setVariable("a");
+                StructureMap.StructureMapGroupRuleTargetComponent target = transformRule.addTarget().setContext("target").setElement(rule.getTargets().get(0).getAttributeList().get(0).getName());
+                if (rule.getTargets().get(0).getTypeConversion() != null) { //.setTransform(StructureMap.StructureMapTransform.EXTENSION);
+                    String type = rule.getTargets().get(0).getTypeConversion().getType();
+                    switch (type) {
+                        case "copy":
+                            target.setTransform(StructureMap.StructureMapTransform.COPY);
+                            target.addParameter().setValue(new IdType("a"));
+                            break;
+                        case "reference":
+                            target.setTransform(StructureMap.StructureMapTransform.CREATE);
+                            target.setContext("");
+                            target.addParameter().setValue(new IdType("\"Encounter\""));
+                            target.setVariable("e");
+                            
+                            StructureMap.StructureMapGroupRuleTargetComponent target2 = transformRule.addTarget().setContext("target").setElement(rule.getTargets().get(0).getAttributeList().get(0).getName());
+                            target2.setTransform(StructureMap.StructureMapTransform.REFERENCE);
+                            target2.addParameter().setValue(new IdType("e"));
+                            
+                            break;
+                        default:
+                            throw new IllegalArgumentException("Unssupported conversion type '"+type+"'");
+                    }
+                }
 
-           });
+            });
         });
         return map;
     }

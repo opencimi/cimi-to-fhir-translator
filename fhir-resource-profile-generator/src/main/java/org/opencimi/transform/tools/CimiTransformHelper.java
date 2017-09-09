@@ -93,9 +93,9 @@ public class CimiTransformHelper {
 
         bmmSchema.createBmmSchema();
         bmmModel = bmmSchema.getBmmModel();
+        BmmPackage boundStatementPkg = new BmmPackage("boundstatement");
+        bmmModel.addPackage(boundStatementPkg);
         config.getClinicalStatementConfigurations().forEach( statement -> {
-            BmmPackage boundStatementPkg = new BmmPackage("boundstatement");
-            bmmModel.addPackage(boundStatementPkg);
             BmmClass clinicalStatement = flattenClinicalStatement(statement.getStatementName(), statement.getStatementTopicName(), statement.getStatementContextName());
             boundStatementPkg.addClass(clinicalStatement);
             bmmModel.addClassDefinition(clinicalStatement);

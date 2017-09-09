@@ -71,11 +71,11 @@ public class CimiToFhirTranslator {
 
     public void generateFhirResourceProfiles() {
         StructureMapSerializer serializer = new StructureMapSerializer();
+        PrePopulatedValidationSupport validationSupport = new PrePopulatedValidationSupport();
         transformations.forEach( transform -> {
             StructureMap map = StructureMapFactory.build(transform);
             resourceProfileMaps.put(map.getUrl(), map);
             System.out.println(serializer.render(map));
-            PrePopulatedValidationSupport validationSupport = new PrePopulatedValidationSupport();
             logicalProfiles.forEach(logicalProfile -> {
                 validationSupport.addStructureDefinition(logicalProfile);
             });

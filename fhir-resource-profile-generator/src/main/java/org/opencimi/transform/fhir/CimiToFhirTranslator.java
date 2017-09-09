@@ -29,6 +29,7 @@ import org.hl7.fhir.r4.hapi.ctx.HapiWorkerContext;
 import org.hl7.fhir.r4.hapi.ctx.PrePopulatedValidationSupport;
 import org.hl7.fhir.r4.model.StructureDefinition;
 import org.hl7.fhir.r4.model.StructureMap;
+import org.hl7.fhir.r4.utils.transform.BatchContext;
 import org.hl7.fhir.r4.utils.transform.FhirTransformationEngine;
 import org.hl7.fhir.r4.utils.transform.serializer.StructureMapSerializer;
 import org.opencimi.transform.ModelTransform;
@@ -76,6 +77,7 @@ public class CimiToFhirTranslator {
         StructureMapSerializer serializer = new StructureMapSerializer();
         PrePopulatedValidationSupport validationSupport = new PrePopulatedValidationSupport();
         List<StructureDefinition> result = new ArrayList<>();
+        BatchContext context = new BatchContext();
         for (ModelTransform transform : transformations) {
             StructureMap map = StructureMapFactory.build(transform);
             resourceProfileMaps.put(map.getUrl(), map);
@@ -86,12 +88,13 @@ public class CimiToFhirTranslator {
             FhirTransformationEngine transformationEngine = configureTransformationEngine(helper, resourceProfileMaps, validationSupport);
             List<StructureDefinition> profiles;
             try {
-                profiles = transformationEngine.analyse(null, map).getProfiles();
+                profiles = transformationEngine.analyse(context,null, map).getProfiles();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
             result.addAll(profiles);
             for (StructureDefinition profile : profiles) {
+                context.addStructureDefinition(profile);
                 String json = parser.encodeResourceToString(profile);
                 
                 FileWriter fw = new FileWriter(new File(helper.getConfig().getOutputDirectory(), profile.getName() + ".json"));

@@ -78,6 +78,7 @@ public class CimiToFhirTranslator {
         PrePopulatedValidationSupport validationSupport = new PrePopulatedValidationSupport();
         List<StructureDefinition> result = new ArrayList<>();
         BatchContext context = new BatchContext();
+        context.setBaseGeneratedProfileUrl("http://opencimi.org/logical-model/fhir/");
         for (ModelTransform transform : transformations) {
             StructureMap map = StructureMapFactory.build(transform);
             resourceProfileMaps.put(map.getUrl(), map);

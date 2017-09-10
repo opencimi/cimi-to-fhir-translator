@@ -90,6 +90,9 @@ public class StructureMapFactory {
                             target.addParameter().setValue(new IdType("a"));
 
                             break;
+                        case "extension":
+                            target.setTransform(StructureMap.StructureMapTransform.EXTENSION);
+                            break;
                         default:
                             throw new IllegalArgumentException("Unssupported conversion type '" + type + "'");
                     }

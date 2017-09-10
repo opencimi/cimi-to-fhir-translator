@@ -115,7 +115,7 @@ public class FhirLogicalProfileGenerator {
         Map<String, BmmProperty> properties = classDefinition.getProperties();
         for (BmmProperty property : properties.values()) {
             if (cimiToFhirTypeIndex.isExcludedType(property.getType())){
-                LOG.debug("Skipping "+property.getName()+" beacuse its type ("+property.getType().getTypeName()+") is black listed.");
+                LOG.debug("Skipping "+property.getName()+" because its type ("+property.getType().getTypeName()+") is black listed.");
                 continue;
             }
             ElementDefinition elementDefinition = toElementDefinition(bmmModel, logicalProfile.getName(), property);

@@ -68,6 +68,7 @@ public class CimiToFhirTypeIndex {
         addCoreTypeMapping("INTERVAL_VALUE<QUANTITY>", "Range");
         
         //Complex Types
+        addCoreTypeMapping("CODED_TEXT", "CodeableConcept");
     }
     
     /**

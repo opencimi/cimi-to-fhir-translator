@@ -20,9 +20,12 @@
  */
 package org.opencimi.transform.fhir;
 
+import java.util.Optional;
 import org.hl7.fhir.r4.model.IdType;
+import org.hl7.fhir.r4.model.StringType;
 import org.hl7.fhir.r4.model.StructureMap;
 import org.opencimi.transform.ModelTransform;
+import org.opencimi.transform.OperationParameter;
 
 public class StructureMapFactory {
 
@@ -58,18 +61,37 @@ public class StructureMapFactory {
                             target.addParameter().setValue(new IdType("a"));
                             break;
                         case "reference":
+                            OperationParameter referent = rule.getTargets().get(0).getTypeConversion().getOperationParameterList().stream().filter(p -> "referent".equals(p.getName())).findFirst().orElseThrow(() -> new RuntimeException("'referent' argument was not specified"));
+                            OperationParameter constraint = rule.getTargets().get(0).getTypeConversion().getOperationParameterList().stream().filter(p -> "constraintIdentifier".equals(p.getName())).findFirst().orElseThrow(() -> new RuntimeException("'constraintIdentifier' argument was not specified"));
+
                             target.setTransform(StructureMap.StructureMapTransform.CREATE);
                             target.setContext("");
-                            target.addParameter().setValue(new IdType("\"Encounter\""));
-                            target.setVariable("e");
+                            target.addParameter().setValue(new StringType(referent.getValue()));
+                            target.setVariable("b");
                             
+                            StructureMap.StructureMapGroupRuleTargetComponent targetDeleteMe = transformRule.addTarget().setContext("target").setElement(rule.getTargets().get(0).getAttributeList().get(0).getName());
+                            targetDeleteMe.setTransform(StructureMap.StructureMapTransform.CREATE);
+                            targetDeleteMe.setContext("");
+                            targetDeleteMe.addParameter().setValue(new StringType(referent.getValue()));
+                            targetDeleteMe.setVariable("c");
+
                             StructureMap.StructureMapGroupRuleTargetComponent target2 = transformRule.addTarget().setContext("target").setElement(rule.getTargets().get(0).getAttributeList().get(0).getName());
                             target2.setTransform(StructureMap.StructureMapTransform.REFERENCE);
-                            target2.addParameter().setValue(new IdType("e"));
-                            
+                            target2.addParameter().setValue(new IdType("b"));
+
+                            break;
+                        case "cast":
+                            target.setTransform(StructureMap.StructureMapTransform.CAST);
+                            target.addParameter().setValue(new IdType("a"));
+
+                            break;
+                        case "c":
+                            target.setTransform(StructureMap.StructureMapTransform.C);
+                            target.addParameter().setValue(new IdType("a"));
+
                             break;
                         default:
-                            throw new IllegalArgumentException("Unssupported conversion type '"+type+"'");
+                            throw new IllegalArgumentException("Unssupported conversion type '" + type + "'");
                     }
                 }
 

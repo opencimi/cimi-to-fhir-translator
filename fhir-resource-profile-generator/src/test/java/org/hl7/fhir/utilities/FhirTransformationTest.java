@@ -21,14 +21,12 @@
 package org.hl7.fhir.utilities;
 
 import ca.uhn.fhir.context.FhirContext;
-import com.sun.istack.internal.Nullable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hl7.fhir.r4.hapi.ctx.DefaultProfileValidationSupport;
 import org.hl7.fhir.r4.hapi.ctx.HapiWorkerContext;
 import org.hl7.fhir.r4.hapi.ctx.PrePopulatedValidationSupport;
 import org.hl7.fhir.r4.model.*;
-import org.hl7.fhir.r4.utils.StructureMapUtilities;
 import org.hl7.fhir.r4.utils.transform.FhirTransformationEngine;
 import org.junit.After;
 import org.junit.Before;
@@ -42,6 +40,7 @@ import java.io.FileWriter;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
+import org.hl7.fhir.r4.utils.transform.BatchContext;
 
 import static org.junit.Assert.fail;
 
@@ -146,7 +145,7 @@ public class FhirTransformationTest {
             //map = this.context.newXmlParser().parseResource(StructureMap.class, new FileReader((new File(resourcePath + "/mapping/maps/testStructuremap.xml"))));
             map = createTestStructuremap();
             maps.put(map.getUrl(), map);
-            List<StructureDefinition> result = scu.analyse(null, map).getProfiles();
+            List<StructureDefinition> result = scu.analyse(new BatchContext(), null, map).getProfiles();
             File currentDir = new File(".");
             String filePath = currentDir.getAbsolutePath();
 

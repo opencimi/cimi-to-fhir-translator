@@ -1,5 +1,60 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <transformations>
+    <transformation name="CodedTextMap">
+        <source model="CIMI" class="CODED_TEXT" constraint="http://opencimi.org/logical-model/fhir/CODED_TEXT"/>
+        <target model="FHIR" class="Coding" constraint="http://hl7.org/fhir/StructureDefinition/Coding"/>
+        <ruleGroup>
+            <rule>
+                <source>
+                    <attribute name="code"/>
+                </source>
+                <target>
+                    <attribute name="code"/>
+                    <typeConversion type="fhir:copy"/> <!-- TODO: this is not generating any problem, but we are copying from a String (source.code) to Code (target.code). We need to check if this actually works -->
+                </target>
+            </rule>
+            <rule>
+                <source>
+                    <attribute name="term"/>
+                </source>
+                <target>
+                    <attribute name="display"/>
+                    <typeConversion type="fhir:copy"/>
+                </target>
+            </rule>
+            <rule> <!-- TODO: once the cast operation is supported, check if this cast actually works-->
+                <source>
+                    <attribute name="terminology_id"/>
+                </source>
+                <target>
+                    <attribute name="system"/>
+                    <typeConversion type="fhir:cast">
+                        <arguments>
+                            <argument name="targetType">uri</argument>
+                        </arguments>
+                    </typeConversion>
+                </target>
+            </rule>
+              <rule>
+                  <source>
+                      <attribute name="terminology_version"/>
+                  </source>
+                  <target>
+                      <attribute name="version"/>
+                      <typeConversion type="fhir:copy"/>
+                  </target>
+              </rule>
+              <rule>
+                  <source>
+                      <attribute name="uri"/>
+                  </source>
+                  <target>
+                      <attribute name="uri"/>
+                      <typeConversion type="fhir:extension"/>
+                  </target>
+              </rule>
+        </ruleGroup>
+    </transformation>
     <transformation name="MedicationOrderMap">
         <source model="CIMI" class="MedicationOrderStatement" constraint="http://opencimi.org/logical-model/fhir/MedicationOrderStatement"/>
         <target model="FHIR" class="MedicationRequest" constraint="http://hl7.org/fhir/StructureDefinition/MedicationRequest"/>
@@ -22,20 +77,20 @@
                     <typeConversion type="fhir:copy"/>
                 </target>
             </rule>
-            <!--<rule>-->
-                <!--<source>-->
-                    <!--<attribute name="encounter"/>-->
-                <!--</source>-->
-                <!--<target>-->
-                    <!--<attribute name="context"/>-->
-                    <!--<typeConversion type="fhir:reference">-->
-                        <!--<arguments>-->
-                            <!--<argument name="referent">Encounter</argument>-->
-                            <!--<argument name="constraintIdentifier">http://opencimi.org/fhir/extension/encounter</argument>-->
-                        <!--</arguments>-->
-                    <!--</typeConversion>-->
-                <!--</target>-->
-            <!--</rule>-->
+            <rule>
+                <source>
+                    <attribute name="encounter"/>
+                </source>
+                <target>
+                    <attribute name="context"/>
+                    <typeConversion type="fhir:reference">
+                        <arguments>
+                            <argument name="referent">Encounter</argument>
+                            <argument name="constraintIdentifier">http://opencimi.org/fhir/extension/encounter</argument>
+                        </arguments>
+                    </typeConversion>
+                </target>
+            </rule>
             <rule>
                 <source>
                     <attribute name="context"/>

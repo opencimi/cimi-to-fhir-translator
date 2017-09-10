@@ -81,8 +81,11 @@ public class StructureMapFactory {
 
                             break;
                         case "cast":
+                            OperationParameter targetType = rule.getTargets().get(0).getTypeConversion().getOperationParameterList().stream().filter(p -> "targetType".equals(p.getName())).findFirst().orElseThrow(() -> new RuntimeException("'targetType' argument was not specified"));
+                            
                             target.setTransform(StructureMap.StructureMapTransform.CAST);
                             target.addParameter().setValue(new IdType("a"));
+                            target.addParameter().setValue(new StringType(targetType.getValue()));
 
                             break;
                         case "c":
